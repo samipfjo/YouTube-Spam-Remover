@@ -1,3 +1,11 @@
+.eslintrc.json
+
+allowed-sites.json
+hosts.txt
+tranco_custom.csv
+
+__pycache__
+
 # Logs
 logs
 *.log
