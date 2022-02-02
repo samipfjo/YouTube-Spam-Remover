@@ -3,6 +3,10 @@
   "name": "YouTube Spam Remover",
   "version": "1.0.0",
   "description": "Removes spammy YouTube comments",
+  "permissions": [
+    "*://www.youtube.com/watch*",
+    "*://youtube.com/watch*"
+  ],
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/watch*", "*://youtube.com/watch*"],

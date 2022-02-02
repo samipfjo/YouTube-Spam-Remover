@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Spam Remover",
+  "version": "1.0.0",
+  "description": "Removes spammy YouTube comments",
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/watch*", "https://youtube.com/watch*"],
+      "js": ["yt-spam-remover.js", "pako_inflate.min.js"],
+      "css": ["yt-spam-remover.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["yt-spam-remover-worker.js", "allowed-sites.json.gz"],
+      "matches": ["https://www.youtube.com/*", "https://youtube.com/*"]
+    }
+  ]
+}
