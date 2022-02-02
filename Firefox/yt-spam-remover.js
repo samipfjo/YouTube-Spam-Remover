@@ -38,7 +38,7 @@
 		xhr.send();
 
 	} else {
-		spam_worker = new Worker(get_ext_url('yt-spam-remover-worker.js'));  /* eslint-disable-line */
+		spam_worker = new Worker(get_ext_url('yt-spam-remover-worker.js'));
 		spam_worker.onmessage = YoutubeSpamRemover._handle_worker_message;
 	}
 	
