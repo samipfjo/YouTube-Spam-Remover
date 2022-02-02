@@ -2,18 +2,7 @@
   "manifest_version": 2,
   "name": "YouTube Spam Remover",
   "version": "1.0.0",
-
   "description": "Removes spammy YouTube comments",
-  
-  "permissions": [
-    "*://www.youtube.com/watch*",
-    "*://youtube.com/watch*",
-    "webRequest",
-    "storage"
-  ],
-
-  "icons": { },
-
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/watch*", "*://youtube.com/watch*"],
@@ -22,12 +11,5 @@
       "run_at": "document_end"
     }
   ],
-
-  "web_accessible_resources": ["yt-spam-remover-worker.js", "allowed-sites.json"],
-
-  "browser_specific_settings": {
-    "gecko": {
-      "update_url": "https://raw.githubusercontent.com/luketimothyjones/youtube-spam-remover/main/firefox/updates.json"
-    }
-  }
+  "web_accessible_resources": ["yt-spam-remover-worker.js", "allowed-sites.json.gz"]
 }

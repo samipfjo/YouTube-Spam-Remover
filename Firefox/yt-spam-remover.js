@@ -99,7 +99,7 @@
 				YoutubeSpamRemover._log('Error while getting allowed sites list');
 			}
 
-			xhr.open('GET', browser.runtime.getURL('allowed-sites.json'), true);  /* eslint-disable-line */
+			xhr.open('GET', browser.runtime.getURL('allowed-sites.json.gz'), true);  /* eslint-disable-line */
 			xhr.send();
 		}
 
