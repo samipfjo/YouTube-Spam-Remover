@@ -36,7 +36,7 @@ data = re.sub(r'^.+\.\w+-+\w*\n', '', data, flags=re.MULTILINE)
 
 # Remove unwanted URLs (edu|gov|mil are allowed already)
 data = re.sub(r'^.+\.(?:edu|gov|mil)(?:\.\w\w)?\n', '', data, flags=re.MULTILINE)
-data = re.sub(r'^.*(?:bride|dating|viagra|crypto).*\n', '', data, flags=re.MULTILINE)
+data = re.sub(r'^.*(?:bride|dating|viagra).*\n', '', data, flags=re.MULTILINE)
 
 print('De-duplicating data...')
 for url in data.split('\n'):
