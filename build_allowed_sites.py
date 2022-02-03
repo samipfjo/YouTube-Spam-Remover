@@ -53,7 +53,7 @@ known.clear()
 print('Removing known bad actors...')
 
 # Remove known bad hosts urls from tranco list
-out = [_ for _ in set(out) - known_bad_urls if _.strip() != ''][:URL_LIMIT]
+out = [_ for _ in out if _.strip() != '' and _ not in known_bad_hosts][:URL_LIMIT]
 out_dict = collections.defaultdict(list)
 
 print('Sorting...')
