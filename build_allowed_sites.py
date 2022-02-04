@@ -8,53 +8,60 @@ URL_LIMIT = 300000
 
 # Clean up hosts data
 with open('hosts.txt') as f:
-    data = f.read()
+    hosts_data = f.read()
 
-data = re.sub(r'\r|\t|www\.', '', data, flags=re.MULTILINE)
-data = re.sub(r'#.+$', '', data, flags=re.MULTILINE)
-data = re.sub(r'^.+ (?P<url>.+)$', r'\1', data, flags=re.MULTILINE)
-data = data[data.find('0.0.0.0\n') + 9:]
-data = re.sub(r' +$', '', data, flags=re.MULTILINE)
-data = re.sub(r'^#?\n', '', data, flags=re.MULTILINE)
+hosts_data = re.sub(r'\r|\t|www\.', '', hosts_data, flags=re.MULTILINE)
+hosts_data = re.sub(r'#.+$', '', hosts_data, flags=re.MULTILINE)
+hosts_data = re.sub(r'^.+ (?P<url>.+)$', r'\1', hosts_data, flags=re.MULTILINE)
+hosts_data = hosts_data[hosts_data.find('0.0.0.0\n') + 9:]
+hosts_data = re.sub(r' +$', '', hosts_data, flags=re.MULTILINE)
+hosts_data = re.sub(r'^#?\n', '', hosts_data, flags=re.MULTILINE)
 
-known_bad_urls = set(sorted(data.split('\n'))[1:])
+known_bad_urls = set(sorted(hosts_data.split('\n'))[1:])
 
 
 # Clean up tranco data
-known = set()
-out = []
-
 with open('tranco_custom.csv') as f:
-    data = f.read() 
+    tranco_data = f.read()
 
 print('Cleaning data...')
 
 # Data cleanup
-data = data.replace('\r', '')
-data = re.sub(r'^\d+,', '', data, flags=re.MULTILINE)
-data = re.sub(r'^.+\.\w+-+\w*\n', '', data, flags=re.MULTILINE)
+tranco_data = tranco_data.replace('\r', '')
+tranco_data = re.sub(r'^\d+,', '', tranco_data, flags=re.MULTILINE)
+tranco_data = re.sub(r'^.+\.\w+-+\w*\n', '', tranco_data, flags=re.MULTILINE)
 
 # Remove unwanted URLs (edu|gov|mil are allowed already)
-data = re.sub(r'^.+\.(?:edu|gov|mil)(?:\.\w\w)?\n', '', data, flags=re.MULTILINE)
-data = re.sub(r'^.*(?:bride|dating|viagra).*\n', '', data, flags=re.MULTILINE)
+tranco_data = re.sub(r'^.+\.(?:edu|gov|mil)(?:\.\w\w)?\n', '', tranco_data, flags=re.MULTILINE)
+
+# Remove common spam items
+tranco_data = re.sub(r'^.*(?:bride|dating|viagra).*\n', '', tranco_data, flags=re.MULTILINE)
 
 print('De-duplicating data...')
-for url in data.split('\n'):
+
+already_added = set()
+out = []
+for url in tranco_data.split('\n'):
     url = url.rstrip()
 
-    if url in known:
+    if url in already_added:
         continue
 
     out.append(url)
-    known.add(url)
+    already_added.add(url)
 
-known.clear()
+already_added.clear()
 
 print('Removing known bad actors...')
 
 # Remove known bad hosts urls from tranco list
 out = [_ for _ in out if _.strip() != '' and _ not in known_bad_urls][:URL_LIMIT]
 out_dict = collections.defaultdict(list)
+
+# Add known good hosts
+with open('known-urls.txt') as f:
+    known_urls = f.readlines()
+    out += [_.strip() for _ in known_urls if _.strip() != '']
 
 print('Sorting...')
 for url in out:
