@@ -113,7 +113,7 @@
 			xhr.onload = () => {
 				YoutubeSpamRemover._log('Onload called');
 				
-				if (typeof browser === 'undefined') {
+				if (typeof chrome !== 'undefined') {
 					// Can't load panko in webworker in Chrome, so this has to be done here
 					let gzipped_data = new Uint8Array(xhr.response);
 					let allowed_sites = JSON.parse(pako.inflate(gzipped_data, {to: 'string'}));  /* eslint-disable-line */
