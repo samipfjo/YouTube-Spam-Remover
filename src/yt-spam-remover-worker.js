@@ -45,7 +45,7 @@ const allow_by_tld_re = RegExp('^[^\/ ]+' +				// Discard the domain name and su
 							   '(?:\.[a-z]{2})?$',		// Country code suffixes (ex: site.gov.uk)
 							   'u');
 
-var allowed_sites = null;
+let allowed_sites = null;
 
 onmessage = function(e) {
 	if (allowed_sites === null && e.data[0] === 'allowed_sites') {
@@ -56,7 +56,7 @@ onmessage = function(e) {
 
 		// Firefox
 		} else {
-			let gzipped_data = new Uint8Array(e.data[1]);
+			const gzipped_data = new Uint8Array(e.data[1]);
 			allowed_sites = JSON.parse(pako.inflate(gzipped_data, {to: 'string'}));  /* eslint-disable-line */
 			return;
 		}
@@ -66,7 +66,7 @@ onmessage = function(e) {
 		return;
 	}
 
-	let [message_id, author_name, comment_content] = e.data;
+	const [message_id, author_name, comment_content] = e.data;
 
 	// Hide comments that have an author name that includes emojis.
 	if (author_name !== null && str_contains_emoji_re.test(author_name)) {
@@ -99,9 +99,9 @@ function host_is_banned(host) {
 
 // ------
 function allow_by_list(host) {
-	let last_dot = host.lastIndexOf('.');
-	let tld = host.slice(last_dot + 1);
-	let rest = host.slice(0, last_dot);
+	const last_dot = host.lastIndexOf('.'),
+		  tld = host.slice(last_dot + 1),
+		  rest = host.slice(0, last_dot);
 
 	if (binary_search(tld, rest) > -1) {
 		return true;
@@ -112,16 +112,16 @@ function allow_by_list(host) {
 
 // ---
 function binary_search(tld, search) {
-	let sites_array = allowed_sites[tld];
+	const sites_array = allowed_sites[tld];
 
 	// TLD does not exist in allowed sites
 	if (typeof sites_array === 'undefined') {
 		return -1;
 	}
 
-	let left_pos = 0;
-	let right_pos = sites_array.length - 1;
-	let curr_pos = Math.floor((left_pos + right_pos) / 2);
+	let left_pos = 0,
+		right_pos = sites_array.length - 1,
+		curr_pos = Math.floor((left_pos + right_pos) / 2);
 
 	while (left_pos < right_pos) {
 		let curr_val = sites_array[curr_pos];
