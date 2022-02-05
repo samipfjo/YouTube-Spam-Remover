@@ -2,6 +2,11 @@ allowed-sites.json
 hosts.txt
 tranco_custom.csv
 
+Chrome/*
+!Chrome/manifest.json
+Firefox/*
+!Firefox/manifest.json
+
 __pycache__
 
 # Logs
