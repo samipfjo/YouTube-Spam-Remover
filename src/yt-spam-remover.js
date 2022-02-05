@@ -28,6 +28,8 @@
 		static _do_debug_logging = false;
 
 		constructor() {
+			YoutubeSpamRemover._log('Initialized');
+
 			this.worker = null;
 			this._cur_elem_id = 0;
 
@@ -35,7 +37,6 @@
 			this.scan_comments = this.scan_comments.bind(this);
 			this._worker_init = this._worker_init.bind(this);
 
-			YoutubeSpamRemover._log('Initialized');
 			this._worker_init();
 
 			// Wait for the comments element to exist, then hook
