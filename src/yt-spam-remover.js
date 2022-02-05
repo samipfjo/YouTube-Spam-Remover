@@ -19,8 +19,6 @@
  *
 **/
 
-{
-	let get_ext_url = (chrome !== 'undefined' ? chrome : browser).runtime.getURL;  /* eslint-disable-line */
 `use strict`;
 
 {
@@ -36,7 +34,7 @@
 			// Do method binding
 			this.scan_comments = this.scan_comments.bind(this);
 			this._worker_init = this._worker_init.bind(this);
-			
+
 			YoutubeSpamRemover._log('Initialized');
 			this._worker_init();
 
@@ -45,17 +43,15 @@
 				(new MutationObserver((_, obs) => {
 					if (document.querySelector('ytd-comments') !== null) {
 						obs.disconnect();
-						window.YT_SPAM_RM_OBSERVER = (new MutationObserver(this.scan_comments))
-														.observe(document.querySelector('ytd-comments'),
-																{childList: true, subtree: true});
+						this._observer = new MutationObserver(this.scan_comments);
+						this._observer.observe(document.querySelector('ytd-comments'), {childList: true, subtree: true});
 					}
 				})).observe(document.querySelector('body'), {childList: true, subtree: true});
 
 			// The comments element already exists; hook immediately
 			} else {
-				window.YT_SPAM_RM_OBSERVER = (new MutationObserver(this.scan_comments))
-												.observe(document.querySelector('ytd-comments'),
-														{childList: true, subtree: true});
+				this._observer = new MutationObserver(this.scan_comments);
+				this._observer.observe(document.querySelector('ytd-comments'), {childList: true, subtree: true});
 			}
 		}
 
@@ -68,9 +64,10 @@
 
 			// TODO :: Ignore hovering over "like" and "dislike"
 
+			for (const comment of document.querySelectorAll('ytd-comment-renderer:not([data-ytsr-id])')) {
 				// Mark for retrieval / flag the comment as tested (will be skipped on following scans)
 				comment.dataset.ytsrId = this._cur_elem_id;
-				
+
 				const author_name = comment.querySelector('#author-text');
 				const comment_content = comment.querySelector('#content-text');
 
@@ -78,7 +75,7 @@
 					comment.classList.add('ytsr-checking');
 					this.worker.postMessage([this._cur_elem_id, author_name.innerText, comment_content.innerHTML]);
 				}
-				
+
 				this._cur_elem_id += 1;
 			}
 		}
@@ -89,7 +86,7 @@
 		_worker_init() {
 			if (chrome !== 'undefined') {  /* eslint-disable-line */
 				// Chrome workaround
-		
+
 				const xhr = new XMLHttpRequest();
 				xhr.responseType = 'blob';
 
@@ -100,7 +97,7 @@
 
 				xhr.open("GET", get_ext_url('yt-spam-remover-worker.js'), true);
 				xhr.send();
-		
+
 			} else {
 				this.worker = new Worker(get_ext_url('yt-spam-remover-worker.js'));
 				this.worker.onmessage = YoutubeSpamRemover._handle_worker_message;
@@ -109,16 +106,16 @@
 			// Get allowed-sites.json and pass it to the worker
 			// This needs to happen on the main thread, as xhr.responseType can't be set in a worker
 
+			const xhr = new XMLHttpRequest();
 			xhr.responseType = 'arraybuffer';
 
 			xhr.onload = () => {
-				
 				if (typeof chrome !== 'undefined') {
 					// Can't load panko in webworker in Chrome, so this has to be done here
-					let allowed_sites = JSON.parse(pako.inflate(gzipped_data, {to: 'string'}));  /* eslint-disable-line */
-					spam_worker.postMessage(['allowed_sites', allowed_sites]);
 					const gzipped_data = new Uint8Array(xhr.response);
-				
+					const allowed_sites = JSON.parse(pako.inflate(gzipped_data, {to: 'string'}));  /* eslint-disable-line */
+					this.worker.postMessage(['allowed_sites', allowed_sites]);
+
 				} else {
 					this.worker.postMessage(['allowed_sites', xhr.response]);
 				}
@@ -142,6 +139,7 @@
 		// ------
 		static _handle_worker_message(event) {
 			const [msg_id, is_spam] = event.data;
+			const comment_elem = document.querySelector('ytd-comment-renderer[data-ytsr-id="' + msg_id + '"]');
 
 			if (is_spam) {
 				comment_elem.dataset.ytsrSpam = '1';

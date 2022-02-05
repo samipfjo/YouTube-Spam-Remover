@@ -1,4 +1,27 @@
-let do_debug_logging = false;
+/**
+ * YouTube Spam Remover
+ *
+ * Project homepage: https://github.com/luketimothyjones/youtube-spam-remover/
+ *
+ * Copyright 2022, Luke Pflibsen-Jones (https://github.com/luketimothyjones)
+ * Licensed under GPLv3
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version. This program is distributed
+ * in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>.
+ *
+**/
+
+`use strict`;
+
+const do_debug_logging = false;
 
 // Include GZIP extraction library in Firefox
 if (typeof browser !== 'undefined') {
@@ -8,7 +31,7 @@ if (typeof browser !== 'undefined') {
 // ================
 // Regular expressions
 
-const host_extractor_re = RegExp('<a' +							// Anchor tag 
+const host_extractor_re = RegExp('<a' +							// Anchor tag
                                  '(?:(?!href=").)+>' +			// Does not contain href=" (this keeps @name and YouTube links working)
                                  '(?:https?:\/\/)?(?:www\.)?' +	// Discard URL schema
                                  '(?<host>[^ "\n\/\?<]+)',		// Capture the host section (up to but excluding /)
@@ -24,7 +47,7 @@ const allow_by_tld_re = RegExp('^[^\/ ]+' +			    // Discard the domain name and
 
 var allowed_sites = null;
 
-onmessage = function(e) { 
+onmessage = function(e) {
     if (allowed_sites === null && e.data[0] === 'allowed_sites') {
         // GZIP inflation has to happen on main thread in Chrome
         if (typeof browser === 'undefined') {
@@ -37,6 +60,10 @@ onmessage = function(e) {
             allowed_sites = JSON.parse(pako.inflate(gzipped_data, {to: 'string'}));  /* eslint-disable-line */
             return;
         }
+
+    } else if (e.data[0] === 'alive') {
+        this.postMessage([true]);
+        return;
     }
 
     let [message_id, author_name, comment_content] = e.data;
@@ -86,7 +113,7 @@ function allow_by_list(host) {
 // ---
 function binary_search(tld, search) {
     let sites_array = allowed_sites[tld];
-    
+
     // TLD does not exist in allowed sites
     if (typeof sites_array === 'undefined') {
         return -1;
@@ -109,7 +136,7 @@ function binary_search(tld, search) {
             return curr_pos;
         }
 
-        curr_pos = Math.floor((left_pos + right_pos) / 2);    
+        curr_pos = Math.floor((left_pos + right_pos) / 2);
     }
 
     return -1;
