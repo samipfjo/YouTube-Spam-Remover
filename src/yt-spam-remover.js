@@ -21,43 +21,24 @@
 
 {
 	let get_ext_url = (chrome !== 'undefined' ? chrome : browser).runtime.getURL;  /* eslint-disable-line */
+`use strict`;
 
-	let spam_worker = null;
-	if (chrome !== 'undefined') {  /* eslint-disable-line */
-		// Chrome workaround
-
-		var xhr = new XMLHttpRequest();
-		xhr.responseType = 'blob';
-
-		xhr.onload = () => {
-			spam_worker = new Worker(URL.createObjectURL(xhr.response));
-			spam_worker.onmessage = YoutubeSpamRemover._handle_worker_message;
-		}
-
-		xhr.open("GET", get_ext_url('yt-spam-remover-worker.js'), true);
-		xhr.send();
-
-	} else {
-		spam_worker = new Worker(get_ext_url('yt-spam-remover-worker.js'));
-		spam_worker.onmessage = YoutubeSpamRemover._handle_worker_message;
-	}
-	
-	let cur_elem_id = 0;
+{
+	const get_ext_url = (chrome !== 'undefined' ? chrome : browser).runtime.getURL;  /* eslint-disable-line */
 
 	class YoutubeSpamRemover {
-
-		// ================
-		// Development settings
-
 		static _do_debug_logging = false;
 
-		// ================
-		// Public methods
-
 		constructor() {
-			YoutubeSpamRemover._log('init');
+			this.worker = null;
+			this._cur_elem_id = 0;
 
-			YoutubeSpamRemover._worker_init();
+			// Do method binding
+			this.scan_comments = this.scan_comments.bind(this);
+			this._worker_init = this._worker_init.bind(this);
+			
+			YoutubeSpamRemover._log('Initialized');
+			this._worker_init();
 
 			// Wait for the comments element to exist, then hook
 			if (document.querySelector('ytd-comments') === null) {
@@ -78,49 +59,68 @@
 			}
 		}
 
+		// ================
+		// Public methods
+
 		scan_comments() {
 			// This could be done more efficiently by parsing the mutations themselves, but
 			// this is sufficiently fast and is not tightly coupled to YouTube's MutationRecords
 
 			// TODO :: Ignore hovering over "like" and "dislike"
 
-			for (let comment of document.querySelectorAll('ytd-comment-renderer:not([data-ytsr-id])')) {
 				// Mark for retrieval / flag the comment as tested (will be skipped on following scans)
-				comment.dataset.ytsrId = cur_elem_id;
+				comment.dataset.ytsrId = this._cur_elem_id;
 				
 				const author_name = comment.querySelector('#author-text');
 				const comment_content = comment.querySelector('#content-text');
 
 				if (author_name !== null && comment_content !== null) {
 					comment.classList.add('ytsr-checking');
-					spam_worker.postMessage([cur_elem_id, author_name.innerText, comment_content.innerHTML]);
+					this.worker.postMessage([this._cur_elem_id, author_name.innerText, comment_content.innerHTML]);
 				}
 				
-				cur_elem_id += 1;
+				this._cur_elem_id += 1;
 			}
 		}
 
 		// ============
 		// Private methods
 
-		static _worker_init() {
+		_worker_init() {
+			if (chrome !== 'undefined') {  /* eslint-disable-line */
+				// Chrome workaround
+		
+				const xhr = new XMLHttpRequest();
+				xhr.responseType = 'blob';
+
+				xhr.onload = () => {
+					this.worker = new Worker(URL.createObjectURL(xhr.response));
+					this.worker.onmessage = YoutubeSpamRemover._handle_worker_message;
+				};
+
+				xhr.open("GET", get_ext_url('yt-spam-remover-worker.js'), true);
+				xhr.send();
+		
+			} else {
+				this.worker = new Worker(get_ext_url('yt-spam-remover-worker.js'));
+				this.worker.onmessage = YoutubeSpamRemover._handle_worker_message;
+			}
+
 			// Get allowed-sites.json and pass it to the worker
 			// This needs to happen on the main thread, as xhr.responseType can't be set in a worker
 
-			let xhr = new XMLHttpRequest();
 			xhr.responseType = 'arraybuffer';
 
 			xhr.onload = () => {
-				YoutubeSpamRemover._log('Onload called');
 				
 				if (typeof chrome !== 'undefined') {
 					// Can't load panko in webworker in Chrome, so this has to be done here
-					let gzipped_data = new Uint8Array(xhr.response);
 					let allowed_sites = JSON.parse(pako.inflate(gzipped_data, {to: 'string'}));  /* eslint-disable-line */
 					spam_worker.postMessage(['allowed_sites', allowed_sites]);
+					const gzipped_data = new Uint8Array(xhr.response);
 				
 				} else {
-					spam_worker.postMessage(['allowed_sites', xhr.response]);
+					this.worker.postMessage(['allowed_sites', xhr.response]);
 				}
 			}
 
@@ -132,6 +132,7 @@
 			xhr.send();
 		}
 
+		// ------
 		static _log(str) {
 			if (YoutubeSpamRemover._do_debug_logging) {
 				console.debug('YOUTUBE_SPAM_REMOVER :: ' + str);
@@ -140,8 +141,7 @@
 
 		// ------
 		static _handle_worker_message(event) {
-			let [msg_id, is_spam] = event.data;
-			let comment_elem = document.querySelector('ytd-comment-renderer[data-ytsr-id="' + msg_id + '"]');
+			const [msg_id, is_spam] = event.data;
 
 			if (is_spam) {
 				comment_elem.dataset.ytsrSpam = '1';
@@ -160,5 +160,5 @@
 	// ================
 	// Initialize
 
-	window.YOUTUBE_SPAM_REMOVER = new YoutubeSpamRemover();
+	new YoutubeSpamRemover();
 }
