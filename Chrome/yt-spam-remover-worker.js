@@ -1,1 +1,0 @@
-../src/yt-spam-remover-worker.js
