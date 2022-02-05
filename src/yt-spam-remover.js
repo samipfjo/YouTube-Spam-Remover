@@ -31,6 +31,8 @@
 			YoutubeSpamRemover._log('Initialized');
 
 			this.worker = null;
+			this._pinned_comment = null;
+			this._video_owner_channel_link = null;
 			this._cur_elem_id = 0;
 
 			// Do method binding
@@ -64,8 +66,21 @@
 			// this is sufficiently fast and is not tightly coupled to YouTube's MutationRecords
 
 			// TODO :: Ignore hovering over "like" and "dislike"
+			
+			// Initialize filters for pinned comments and video owner comments
+			if (this._pinned_comment === null || this._video_owner_channel_link === null) {
+				const top_comment = document.querySelector('#comments #contents ytd-comment-thread-renderer:first-of-type > ytd-comment-renderer:first-of-type');
+				this._pinned_comment = top_comment.querySelector('#pinned-comment-badge') ? top_comment : false;
+
+				this._video_owner_channel_link = document.querySelector('ytd-video-owner-renderer > a').href;
+			}
 
 			for (const comment of document.querySelectorAll('ytd-comment-renderer:not([data-ytsr-id])')) {
+				// Trust pinned comments and comments made by the video owner
+				if (comment === this._pinned_comment || comment.querySelector('#author-text').href === this._video_owner_channel_link) {
+					continue;
+				}
+
 				// Mark for retrieval / flag the comment as tested (will be skipped on following scans)
 				comment.dataset.ytsrId = this._cur_elem_id;
 
