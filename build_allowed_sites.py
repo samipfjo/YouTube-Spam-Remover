@@ -56,7 +56,6 @@ print('Removing known bad actors...')
 
 # Remove known bad hosts urls from tranco list
 out = [_ for _ in out if _.strip() != '' and _ not in known_bad_urls][:URL_LIMIT]
-out_dict = collections.defaultdict(list)
 
 # Add known good hosts
 with open('known-urls.txt') as f:
@@ -64,6 +63,8 @@ with open('known-urls.txt') as f:
     out += [_.strip() for _ in known_urls if _.strip() != '']
 
 print('Sorting...')
+
+out_dict = collections.defaultdict(list)
 for url in out:
     hostname, _, tld = url.rpartition('.')
     out_dict[tld].append(hostname)
