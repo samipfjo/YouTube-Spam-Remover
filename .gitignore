@@ -1,11 +1,17 @@
 allowed-sites.json
 hosts.txt
 tranco_custom.csv
+notes.txt
 
 Chrome/*
 !Chrome/manifest.json
 Firefox/*
 !Firefox/manifest.json
+
+src/extern/opennsfwjs/dist/*
+src/extern/opennsfwjs/test/static/*
+
+src/build
 
 __pycache__
 
@@ -85,3 +91,7 @@ typings/
 
 # FuseBox cache
 .fusebox/
+src/workspace.code-workspace
+*.lock
+*.tsbuildinfo
+src/extern/opennsfwjs/package-lock.json
