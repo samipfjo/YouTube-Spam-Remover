@@ -5,6 +5,7 @@
 
 [Install Chrome version here](https://chrome.google.com/webstore/detail/youtube-spam-remover/gmlbmlpbijkhcdhfaaimaehgjfjccffd)
 
+<br>
 
 ## Technical details
 
@@ -37,7 +38,7 @@ First, the list of allowed websites is retrieved from the [Tranco project](https
 
  [See the latest Tranco list here](https://tranco-list.eu/list/GZ8VK/1000000)
 
-Second, we remove the TLDs [*.edu`](https://icannwiki.org/.edu), [*.gov](https://icannwiki.org/.gov), and [*.mil](https://icannwiki.org/.mil), as we blanket-allow them since registration requires approval from a regulatory organization.
+Second, we remove the TLDs [*.edu](https://icannwiki.org/.edu), [*.gov](https://icannwiki.org/.gov), and [*.mil](https://icannwiki.org/.mil), as we blanket-allow them since registration requires approval from a regulatory organization.
 
 Third, we remove domains containing "bride," "dating," and "viagra," as they are massively present in spam URLs. The hope with "bride" is that most valid URLs will use "bridal" instead.
 
