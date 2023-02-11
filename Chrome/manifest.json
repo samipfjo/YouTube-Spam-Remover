@@ -8,18 +8,37 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
+  "permissions": [
+    "storage",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "https://yt3.ggpht.com/*",
+    "https://raw.githubusercontent.com/lukepfjo/YouTube-Spam-Remover/main/src/extern/opennsfwjs/model/*"
+  ],
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/watch*", "https://youtube.com/watch*"],
-      "js": ["yt-spam-remover.js", "pako_inflate.min.js"],
+      "js": ["yt-spam-remover.js", "pako_inflate.min.js", "opennsfw.min.js", "pixelmatch.min.js"],
       "css": ["yt-spam-remover.css"],
       "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["yt-spam-remover-worker.js", "allowed-sites.json.gz"],
+      "resources": ["yt-spam-remover-worker.js", "pako_inflate.min.js", "opennsfw.min.js", "pixelmatch.min.js", "allowed-sites.json.gz"],
       "matches": ["https://www.youtube.com/*", "https://youtube.com/*"]
     }
-  ]
+  ],
+  "action": {
+	  "default_icon": {
+		  "16": "icon16.png",
+		  "48": "icon48.png"
+	  },
+	  "default_popup": "gui/ytsr-gui-tab.html"
+  },
+  "options_ui": {
+      "page": "gui/ytsr-gui-options.html",
+      "browser_style": true
+  }
 }

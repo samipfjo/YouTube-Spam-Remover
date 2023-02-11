@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <style>
+            html, body {
+                height: 100%;
+                background-color: #fff;
+                color: rgb(21,20,26);
+                font-size: 1rem;
+                padding: 10px;
+            }
+
+			html.chrome {
+				height: auto;
+				min-height: 200px;
+			}
+
+			.input-container {
+				border: 1px solid #888;
+				padding: 3px 5px;
+			}
+
+			input[type="checkbox"] {
+				margin-left: 2rem;
+				width: 1rem;
+				height: 1rem;
+			}
+
+            #save {
+                padding: 5px 20px;
+                margin-top: 50px;
+            }
+
+			@media (prefers-color-scheme: dark) {
+                html, body {
+                    color: rgb(251,251,254);
+                    background-color: rgb(28,27,34);
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+      <form>
+            <div class="input-container">
+                <label for="opennsfw_enabled">NSFW Detection</label>
+                <input type="checkbox" name="opennsfw_enabled" id="opennsfw_enabled"
+                       aria-label="Toggle NSFW detection">
+            </div>
+
+			<div class="input-container">
+                <label for="opennsfw_priming_enabled">Automatic priming of NSFW model</label>
+                <input type="checkbox" name="opennsfw_priming_enabled" id="opennsfw_priming_enabled"
+                       aria-label="Toggle NSFW engine priming">
+            </div>
+
+			<div class="input-container">
+                <label for="explain_enabled">Spam reason labels</label>
+                <input type="checkbox" name="explain_enabled" id="explain_enabled"
+                       aria-label="Toggle display of reason for marking">
+            </div>
+     
+          <button id="save" type="submit">Save</button>
+      </form>
+
+      <script src="ytsr-gui-options.js"></script>
+    </body>
+</html>

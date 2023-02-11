@@ -9,16 +9,47 @@
     "128": "icon128.png"
   },
   "permissions": [
+    "storage",
+    "unlimitedStorage",
     "*://www.youtube.com/watch*",
-    "*://youtube.com/watch*"
+    "*://youtube.com/watch*",
+    "*://yt3.ggpht.com/*",
+    "*://raw.githubusercontent.com/lukepfjo/YouTube-Spam-Remover/main/src/extern/opennsfwjs/model/*"
   ],
+  "browser_action": {
+    "default_icon": "icon48.png",
+    "theme_icons": [{
+        "light": "icon48.png",
+        "dark": "icon48.png",
+        "size": 48
+    }],
+    "default_title": "YouTube Spam Remover",
+    "default_popup": "gui/ytsr-gui-tab.html",
+	"browser_style": true
+  },
+  "options_ui": {
+      "page": "gui/ytsr-gui-options.html",
+      "browser_style": true
+  },
+  "browser_specific_settings": {
+      "gecko": {
+          "id": "youtube-spam-remover@lukepj.com",
+          "strict_min_version": "57.0a1"
+      }
+  },
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/watch*", "*://youtube.com/watch*"],
-      "js": ["yt-spam-remover.js", "pako_inflate.min.js"],
+      "js": ["yt-spam-remover.js", "pako_inflate.min.js", "opennsfw.min.js", "pixelmatch.min.js"],
       "css": ["yt-spam-remover.css"],
       "run_at": "document_end"
     }
   ],
-  "web_accessible_resources": ["yt-spam-remover-worker.js", "allowed-sites.json.gz"]
+  "web_accessible_resources": [
+	"yt-spam-remover-worker.js",
+	"allowed-sites.json.gz",
+	"pako_inflate.min.js",
+	"opennsfw.min.js",
+	"pixelmatch.min.js"
+  ]
 }

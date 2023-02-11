@@ -20,7 +20,7 @@
 **/
 
 ytd-comment-renderer[data-ytsr-spam="1"] + ytd-comment-renderer:not([data-ytsr-spam="1"]) {
-	margin-top: 25px;
+	margin-top: 10px;
 }
 
 ytd-comment-renderer[data-ytsr-spam="1"] {
@@ -31,30 +31,35 @@ ytd-comment-renderer:not([data-ytsr-spam="1"]) {
 	min-height: 80px;
 }
 
-ytd-comment-renderer[data-ytsr-spam="1"] #author-thumbnail,
-ytd-comment-renderer.ytsr-checking #author-thumbnail {
+ytd-comment-renderer:not([data-ytsr-spam="0"]) #author-thumbnail {
+	filter: blur(4px);
+}
+
+ytd-comment-renderer:not([data-ytsr-spam="0"]) #author-thumbnail img {
 	filter: blur(10px);
 }
 
-ytd-comment-renderer.ytsr-checking * {
-	color: #ececec !important;
+ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) * {
+	color: transparent !important;
 }
 
-html[dark="true"] ytd-comment-renderer.ytsr-checking * {
-	color: #1b1b1b !important;
+ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) #header-author *,
+ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) #toolbar *,
+ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) img {
+	display: none;
 }
 
-ytd-comment-renderer.ytsr-checking #header-author,
-ytd-comment-renderer.ytsr-checking #main > * {
+ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) #header-author,
+ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) #main > * {
 	content: "";
 	background-size: 1000px 100%;
 	background: linear-gradient(to right, #eff1f3 4%, #e2e2e2 25%, #eff1f3 36%);
 	animation: shimmer-placeholder 1s infinite linear;
 }
 
-html[dark="true"] ytd-comment-renderer.ytsr-checking #author-thumbnail a,
-html[dark="true"] ytd-comment-renderer.ytsr-checking #header-author,
-html[dark="true"] ytd-comment-renderer.ytsr-checking #main > * {
+html[darker-dark-theme][dark] ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) #author-thumbnail a,
+html[darker-dark-theme][dark] ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) #header-author,
+html[darker-dark-theme][dark] ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) #main > * {
 	background: linear-gradient(to right, #222 4%, #333 25%, #222 36%);
 }
 
@@ -67,24 +72,37 @@ html[dark="true"] ytd-comment-renderer.ytsr-checking #main > * {
 	}
 }
 
-ytd-comment-renderer[data-ytsr-spam="1"]:not(.ytsr-display-override) * {
+ytd-comment-renderer[data-ytsr-spam="1"]:not(.ytsr-display-override) *,
+ytd-comment-renderer[data-ytsr-spam="1"]:not(.ytsr-display-override) ~ #replies {
 	display: none;
 }
 
-ytd-comment-renderer[data-ytsr-spam="1"]::before {
-	content: 'Likely spam (+)';
+ytd-comment-renderer[data-ytsr-spam="1"].ytsr-display-override {
+	border: 2px solid var(--accent-color);
+	padding: 15px;
+	padding-bottom: max(15px, var(--ytd-decorated-comment-background-offset-bottom, 0px)) !important;
+}
+
+ytd-comment-thread-renderer span.ytsr-spam-toggler {
+	display: block;
+	padding-bottom: 21px;
+}
+
+ytd-comment-thread-renderer span.ytsr-spam-toggler::before {
+	content: 'Likely spam (+)' attr(data-ytsr-reason);
 	display: block;
 	color: var(--yt-spec-text-secondary);
+	opacity: .42;
 	white-space: nowrap;
 	font-family: "Roboto","Arial",sans-serif;
-	font-size: 1rem;
-	line-height: 1.8rem;
+	font-size: 1.3rem;
 	font-weight: 400;
 	text-decoration: underline;
 	cursor: pointer;
+	margin-top: 5px;
 }
 
-ytd-comment-renderer[data-ytsr-spam="1"].ytsr-display-override::before {
-	content: 'Likely spam (-)';
-	margin-bottom: 5px;
+ytd-comment-thread-renderer span.ytsr-spam-toggler.ytsr-display-override::before{
+	content: 'Likely spam (-)' attr(data-ytsr-reason);
+	padding-bottom: 5px;
 }
