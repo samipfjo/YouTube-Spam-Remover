@@ -40,13 +40,13 @@ First, the list of allowed websites is retrieved from the [Tranco project](https
 
 Second, we remove the TLDs [*.edu](https://icannwiki.org/.edu), [*.gov](https://icannwiki.org/.gov), and [*.mil](https://icannwiki.org/.mil), as we blanket-allow them since registration requires approval from a regulatory organization.
 
-Third, we remove domains containing "bride," "dating," and "viagra," as they are massively present in spam URLs. The hope with "bride" is that most valid URLs will use "bridal" instead.
+Third, we remove domains that are present in [StephenBlack's hosts file](https://github.com/StevenBlack/hosts), which is a collection of known bad sites.
 
-Fourth, we remove domains that are present in [StephenBlack's hosts file](https://github.com/StevenBlack/hosts), which is a collection of known bad sites.
+Fourth, we remove domains containing some common words/phrases that are often present in spam/abusive URLs.
 
-Fifth, we limit the list to the top 300,000 to save space and lessen the chance of malicious URLs slipping through our filters.
+Fifth, we limit the list to the top 100,000 to save space and lessen the chance of malicious URLs slipping through our filters.
 
-Lastly, we add some known good domains (like the Linus Tech Tips store that gets memed on a lot) to the list. If a YouTuber's legitimate domain gets flagged falsely, consider submitting a pull request to add it to the allow list.
+Lastly, we add some known good domains to the list. If a YouTuber's legitimate domain gets flagged falsely, consider submitting a pull request to add it to the allow list.
 
 ### Known spammers
 Once one of a user's comments is marked as spam, all subsequent comments by that user are marked as spam.
