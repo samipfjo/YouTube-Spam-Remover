@@ -35,15 +35,64 @@ tranco_data = re.sub(r'^.+\.\w+-+\w*\n', '', tranco_data, flags=re.MULTILINE)
 tranco_data = re.sub(r'^.+\.(?:edu|gov|mil)(?:\.\w\w)?\n', '', tranco_data, flags=re.MULTILINE)
 
 # Remove common spam items
-forbidden_words = [
-    'bride', 'dating', 'wives', '(?!mid|house|home|gracious|military)wife',
-    'viagra',
-    'xxx', 'porn', 'nude', 'anal', 'spank', 'naughty(?!dog)', 'naked(?!capitalism|nutrition|-science)', 'sex(?!tant|ism|press)', 'fuck', 'jizz', 'urbate', 'fap(?!ps|i)', 'hentai', 'peep', 'pussy', 'whore', 'slut', 'bonga-?cam', 'cam(s|fox|girl|beaut|chick|model|shooker|show|site|smut|online|party|stream|teen|ming)', 'xvideo'
-    'casino', 'gamble', 'gambling', 'slots',
-    'darknet', 'darkweb',
-]
-    
-tranco_data = re.sub(f'^.*(?:{"|".join(forbidden_words)}).*\n', '', tranco_data, flags=re.MULTILINE)
+
+forbidden_words = '.*|.*'.join("""\
+bride
+dating
+wives
+viagra
+xxx
+porn
+nude
+spank
+fuck
+jizz
+urbate
+hentai
+peep
+pussy
+whore
+slut
+xvideo
+casino
+gamble
+gamling
+slots
+darknet
+darkweb""".split('\n'))
+
+forbidden_regexes = '|'.join(f"""\
+.*(anal((?!ytics|ysis).)*)
+((?!mid|house|home|gracious|military).)*wife.*
+.*(naughty((?!dog).)*)
+((?!essex).)*sex((?!tant|ism|press).)*
+.*fap((?!ps).)*
+.*bonga-?cam.*
+.*naked((?!capitalism|nutrition|-science).)*""".split('\n'))
+
+forbidden_cam_suffixes = '|'.join("""\
+s
+fox
+girl
+beaut
+chick
+model
+show
+site
+smut
+online
+party
+stream
+teen
+ming""".split('\n'))
+
+full_regex = f'^(?:' + f'(.*{forbidden_words}.*)' + f'|{forbidden_regexes}|' + f'(.*cam((?!{forbidden_cam_suffixes}).)*)' + ')$'
+
+matched = re.findall(full_regex, tranco_data, flags=re.MULTILINE)
+with open('forbidden_matches.txt', 'w') as f:
+    print('\n'.join((max(m) for m in matched)), file=f)
+
+tranco_data = re.sub(full_regex, '', tranco_data, flags=re.MULTILINE)
 
 print('De-duplicating data...')
 
@@ -71,6 +120,9 @@ with open('known-urls.txt') as f:
     out = [_.strip() for _ in known_urls if _.strip() != ''] + out
 
 out = out[:URL_LIMIT]
+
+with open('allowed_sites.txt', 'w') as f:
+    print('\n'.join(out), file=f)
 
 print('Sorting...')
 

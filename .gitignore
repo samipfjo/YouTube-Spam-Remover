@@ -95,3 +95,5 @@ src/workspace.code-workspace
 *.lock
 *.tsbuildinfo
 src/extern/opennsfwjs/package-lock.json
+forbidden_matches.txt
+allowed_sites.txt
