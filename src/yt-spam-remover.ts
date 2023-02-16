@@ -188,7 +188,7 @@ declare var pako: any;
 			// Loop through the recieved change events, which are the 'src' tag getting changes on the avatar
 			for (const record of mutation_records) {
 				// Get the comment element that is the parent of the avatar
-				const comment = (record.target as HTMLImageElement).closest('#comment');
+				const comment = (record.target as HTMLImageElement).closest('ytd-comment-renderer');
 
 				if (comment === null) { continue; }
 
