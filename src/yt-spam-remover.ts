@@ -58,7 +58,7 @@ declare var pako: any;
 	const scripts = [get_ext_url('pako_inflate.min.js'),  get_ext_url('pixelmatch.min.js'), get_ext_url('opennsfw.min.js')];
 
 	// ========
-	var ytsr_instance: YoutubeSpamRemover | null = null;
+	var ytsr_instance: any = null;
 	var logger: any;
 
 	// ========
