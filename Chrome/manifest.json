@@ -40,5 +40,8 @@
   "options_ui": {
       "page": "gui/ytsr-gui-options.html",
       "browser_style": true
+  },
+  "background": {
+    "service_worker": "yt-spam-remover-background.js"
   }
 }

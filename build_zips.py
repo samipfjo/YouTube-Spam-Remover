@@ -8,8 +8,7 @@ import zipfile
 files = [
     ('allowed-sites.json.gz', 'allowed-sites.json.gz'),
     ('', 'src/resources/'),
-    ('yt-spam-remover-worker.js', 'src/build/yt-spam-remover-worker.js'),
-    ('yt-spam-remover.js', 'src/build/yt-spam-remover.js'),
+    ('', 'src/build/'),
     ('yt-spam-remover.css', 'src/yt-spam-remover.css'),
     ('', 'src/extern/'),
     ('gui', 'src/gui/')
