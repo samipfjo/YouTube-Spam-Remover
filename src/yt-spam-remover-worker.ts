@@ -22,6 +22,7 @@
 **/
 
 declare var pixelmatch: Function;
+declare var DecompressionStream: ObjectConstructor;
 
 {
 	const LogLevel = {
@@ -100,7 +101,7 @@ declare var pixelmatch: Function;
 		}
 	}
 
-	var log = make_logger(YTSRConfig.log_level, 'YOUTUBE_SPAM_REMOVER (worker) ::');
+	var logger: any = make_logger(YTSRConfig.log_level, 'YOUTUBE_SPAM_REMOVER (worker) ::');
 
 
 	// ================
@@ -109,30 +110,37 @@ declare var pixelmatch: Function;
 
 		// Handle receipt of allowed_sites.json from main thread
 		if (allowed_sites === null && command === 'allowed_sites') {
-			// GZIP inflation has to happen on main thread in Chrome
-			if (typeof browser === 'undefined') {
-				allowed_sites = JSON.parse(e.data[1]);
+			const allowed_sites_data = e.data[1];
+
+			// Use native compression stream API; not yet supported in Firefox
+			if (typeof DecompressionStream !== 'undefined' && allowed_sites_data[0] !== '{') {
+				logger.verbose('Using DecompressionStream method for allowed-sites ungzipping');
+
+				const decompressor = new DecompressionStream('gzip');
+				const stream = allowed_sites_data.stream().pipeThrough(decompressor);
+
+				// Handy way to turn a JSON stream into an object
+				allowed_sites = await new Response(stream).json();
 
 			// Firefox
 			} else {
-				const gzipped_data = new Uint8Array(e.data[1]);
-				allowed_sites = JSON.parse(pako.inflate(gzipped_data, {to: 'string'}));  /* eslint-disable-line */
+				allowed_sites = JSON.parse(allowed_sites_data);
 			}
 
 			return;
 
 		} else if (command === 'config') {
 			YTSRConfig = e.data[1];
-			log = make_logger(YTSRConfig.log_level, 'YOUTUBE_SPAM_REMOVER (worker) ::');
+			logger = make_logger(YTSRConfig.log_level, 'YOUTUBE_SPAM_REMOVER (worker) ::');
 			return;
 
 		} else if (opennsfw === null && command === 'script_urls') {
-			log.verbose('Importing scripts');
+			logger.verbose('Importing scripts');
 
-			importScripts(e.data[1][0], e.data[1][1]);  // import pako and pixelmatch
+			importScripts(e.data[1][0]);  // import pixelmatch
 
 			if (YTSRConfig.do_nsfw_checking) {
-				importScripts(e.data[1][2]);  // import opennsfw
+				importScripts(e.data[1][1]);  // import opennsfw
 				opennsfw = new OpenNSFW();
 				(opennsfw as any).load().then(() => postMessage(['opennsfw_loaded', 'opennsfw_loaded']));
 
@@ -143,12 +151,12 @@ declare var pixelmatch: Function;
 			return;
 
 		} else if (command === 'video_owner_avatar') {
-			log.verbose(`Getting imagedata for video author (${e.data[1]})`);
+			logger.verbose(`Getting imagedata for video author (${e.data[1]})`);
 
 			video_owner_avatar_promise = imageToImageData(e.data[1]);
 			video_owner_avatar_promise.then((imagedata: ImageData) => {
 				video_owner_avatar = imagedata;
-				log.verbose('Got imagedata for video author');
+				logger.verbose('Got imagedata for video author');
 			});
 			return;
 		}
@@ -166,7 +174,7 @@ declare var pixelmatch: Function;
 		const [comment_id, user_handle, comment_content, author_image_src] = data;
 
 		if (comment_content === null || typeof comment_content === 'undefined') {
-			log.basic(`WARN: Comment #${comment_id} was passed with missing text content`);
+			logger.basic(`WARN: Comment #${comment_id} was passed with missing text content`);
 
 		// Hide comments that contain an distrusted URL (@ tags are permitted as they have an href attribute)
 		} else {
@@ -175,9 +183,9 @@ declare var pixelmatch: Function;
 			if (extracted !== null) {
 				const host = (extracted as any).groups.host.toLowerCase();
 
-				log.verbose(`Found URL: "${host}"`);
+				logger.verbose(`Found URL: "${host}"`);
 				if (checkBanStatus(host)) {
-					log.basic(`Comment #${comment_id} has unapproved URL: "${host}"`);
+					logger.basic(`Comment #${comment_id} has unapproved URL: "${host}"`);
 					postMessage([comment_id, SpamType.URL]);
 					banned_user_handles.add(user_handle);
 					return;
@@ -185,13 +193,13 @@ declare var pixelmatch: Function;
 			}
 
 			if (banned_user_handles.has(user_handle)) {
-				log.basic(`Comment by ${user_handle} previously marked as spam; assuming spammer`);
+				logger.basic(`Comment by ${user_handle} previously marked as spam; assuming spammer`);
 				postMessage([comment_id, SpamType.AlreadySeen]);
 				return;
 			}
 
 			if (typeof comment_content !== 'undefined' && containsForbiddenPhrases(comment_content)) {
-				log.basic(`Comment #${comment_id} contains forbidden phrase`);
+				logger.basic(`Comment #${comment_id} contains forbidden phrase`);
 				postMessage([comment_id, SpamType.Text]);
 				banned_user_handles.add(user_handle);
 				return;
@@ -201,20 +209,20 @@ declare var pixelmatch: Function;
 		}
 
 		if (author_image_src !== null) {
-			log.verbose(`Getting imagedata for comment #${comment_id}`);
+			logger.verbose(`Getting imagedata for comment #${comment_id}`);
 			const author_image_imagedata = await imageToImageData(author_image_src);
 
 			// Check if the comment's avatar is a duplicate of the video author's avatar
 			const pixel_diff = await compareAvatars(author_image_imagedata as ImageData);
 
 			if (pixel_diff < YTSRConfig.pixel_match_threshold) {
-				log.basic(`Comment #${comment_id} has identical avatar to video author (less than 100px difference) -- assumed scammer`);
+				logger.basic(`Comment #${comment_id} has identical avatar to video author (less than 100px difference) -- assumed scammer`);
 				postMessage([comment_id, SpamType.Imposter]);
 				banned_user_handles.add(user_handle);
 				return;
 
 			} else {
-				log.verbose(`Comment #${comment_id} has different avatar than video author`);
+				logger.verbose(`Comment #${comment_id} has different avatar than video author`);
 			}
 
 			// Skip NSFW check if configured not to run it
@@ -225,13 +233,13 @@ declare var pixelmatch: Function;
 
 			const [is_nsfw, nsfw_confidence] = await runOpenNSFW(comment_id, author_image_imagedata as ImageData);
 			if (is_nsfw) {
-				log.basic(`OpenNSFW thinks comment #${comment_id} is NSFW (confidence: nsfw=${nsfw_confidence}%)`);
+				logger.basic(`OpenNSFW thinks comment #${comment_id} is NSFW (confidence: nsfw=${nsfw_confidence}%)`);
 				banned_user_handles.add(user_handle);
 				postMessage([comment_id, SpamType.OpenNSFW]);
 				return;
 
 			} else {
-				log.verbose(`OpenNSFW thinks comment #${comment_id} is SFW (confidence: nsfw=${nsfw_confidence}%)`);
+				logger.verbose(`OpenNSFW thinks comment #${comment_id} is SFW (confidence: nsfw=${nsfw_confidence}%)`);
 			}
 		}
 		
@@ -275,24 +283,24 @@ declare var pixelmatch: Function;
 	// ------
 	async function primeOpenNSFW(): Promise<void> {
 		if (!opennsfw) {
-			log.basic('Attempt made to use OpenNSFW before the object was initialized!');
+			logger.basic('Attempt made to use OpenNSFW before the object was initialized!');
 			return;
 		}
 
 		if (prime_called) {
-			log.verbose('A duplicate attempt was made to prime OpenNSFW');
+			logger.verbose('A duplicate attempt was made to prime OpenNSFW');
 			return;
 		}
 
 		prime_called = true;
 
 		if (!(opennsfw as any).isLoaded()) {
-			log.verbose('Worker awaiting Promise for OpenNSFW model load... (prime_opennsfw)');
+			logger.verbose('Worker awaiting Promise for OpenNSFW model load... (prime_opennsfw)');
 			await (opennsfw as any).getLoadPromise();
-			log.verbose('Promise for OpenNSFW model load resolved (prime_opennsfw)');
+			logger.verbose('Promise for OpenNSFW model load resolved (prime_opennsfw)');
 		}
 
-		log.verbose('Priming OpenNSFW');
+		logger.verbose('Priming OpenNSFW');
 		await (opennsfw as any).prime();
 		return;
 	}
@@ -300,13 +308,13 @@ declare var pixelmatch: Function;
 	// ------
 	async function runOpenNSFW(comment_id: string, author_image_imagedata: ImageData): Promise<[string, string]> {
 		if (YTSRConfig.do_nsfw_checking && !(opennsfw as any).isLoaded()) {
-			log.verbose('Worker awaiting Promise for OpenNSFW model load... (run_opennsfw)');
+			logger.verbose('Worker awaiting Promise for OpenNSFW model load... (run_opennsfw)');
 			await (opennsfw as any).getLoadPromise();
-			log.verbose('Promise for OpenNSFW model load resolved (run_opennsfw)');
+			logger.verbose('Promise for OpenNSFW model load resolved (run_opennsfw)');
 		}
 
 		return new Promise(async (resolve, reject) => {
-			log.verbose(`OpenNSFW has been sent #${comment_id}`);
+			logger.verbose(`OpenNSFW has been sent #${comment_id}`);
 
 			const result = await (opennsfw as any).classifyImages(author_image_imagedata);
 
@@ -351,7 +359,12 @@ declare var pixelmatch: Function;
 
 	// ------
 	function binarySearch(tld: string, search: string): number {
-		const sites_array = (allowed_sites as any)[tld];
+		if (allowed_sites === null) {
+			logger.basic('WARN: Attempted to search allowed sites list before it was loaded!');
+			return -1;
+		}
+
+		const sites_array = allowed_sites[tld];
 
 		// TLD does not exist in allowed sites
 		if (typeof sites_array === 'undefined') {

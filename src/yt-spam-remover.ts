@@ -55,7 +55,7 @@ declare var pako: any;
 
 	// ========
     const get_ext_url = (typeof chrome === 'undefined' ? browser : chrome).runtime.getURL; /* eslint-disable-line */
-	const scripts = [get_ext_url('pako_inflate.min.js'),  get_ext_url('pixelmatch.min.js'), get_ext_url('opennsfw.min.js')];
+	const scripts = [get_ext_url('pixelmatch.min.js'), get_ext_url('opennsfw.min.js')];
 
 	// ========
 	var ytsr_instance: any = null;
@@ -90,7 +90,7 @@ declare var pako: any;
 			(async () => {
 				this._worker = await WorkerManager.loadWorker();
 				await Utils.loadSettings();
-				WorkerManager.initializeWorker(this._worker);
+				await WorkerManager.initializeWorker(this._worker);
 
 				this._video_owner_avatar_load_promise = Utils.getOwnerAvtar();
 				this._video_owner_avatar_load_promise.then((avatar_src) => {
@@ -283,32 +283,26 @@ declare var pako: any;
 		}
 
 		// ----
-		public static initializeWorker(worker: Worker): void {
-			// Get allowed-sites.json and pass it to the worker
-			// This needs to happen on the main thread, as xhr.responseType can't be set in a worker
+		static async initializeWorker(worker: Worker): Promise<void> {
+            // Get allowed-sites.json and pass it to the worker
+            const is_firefox = typeof browser !== 'undefined';
 
-			const xhr = new XMLHttpRequest();
-			xhr.responseType = 'arraybuffer';
+            const allowed_sites_url = get_ext_url(is_firefox ? 'allowed-sites.json' : 'allowed-sites.json.gz');
+            try {
+                var response = await fetch(allowed_sites_url);
 
-			xhr.onload = () => {
-				if (typeof chrome !== 'undefined') {
-					// Can't load panko in webworker in Chrome, so gzip decompression has to be done here
-					const gzipped_data = new Uint8Array(xhr.response);
-					const allowed_sites = pako.inflate(gzipped_data, {to: 'string'});  /* eslint-disable-line */
-					worker.postMessage(['allowed_sites', allowed_sites]);
+            } catch (error) {
+                logger.basic('Error while getting allowed sites list');
+				console.debug(error);
+				return;
+            }
 
-				} else {
-					worker.postMessage(['allowed_sites', xhr.response]);
-				}
-			}
-
-			xhr.onerror = () => {
-				logger.verbose('Error while getting allowed sites list');
-			}
-
-			xhr.open('GET', get_ext_url('allowed-sites.json.gz'), true);  /* eslint-disable-line */
-			xhr.send();
-		}
+            if (is_firefox) {
+                worker.postMessage(['allowed_sites', await response.json()]);
+            } else {
+                worker.postMessage(['allowed_sites', await response.blob()]);
+            }
+        }
 
 		// ----
 		public static handleWorkerMessage(event: {'data': [string, string]}): void {

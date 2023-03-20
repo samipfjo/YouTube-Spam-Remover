@@ -6,7 +6,6 @@ import zipfile
 
 
 files = [
-    ('allowed-sites.json.gz', 'allowed-sites.json.gz'),
     ('', 'src/resources/'),
     ('', 'src/build/'),
     ('yt-spam-remover.css', 'src/yt-spam-remover.css'),
@@ -25,6 +24,9 @@ for browser_folder in ('Chrome', 'Firefox'):
 
     extension_zip = zipfile.ZipFile(zip_path, mode='w')
 
+    allowed_sites = 'allowed-sites.json.gz' if browser_folder == 'Chrome' else 'allowed-sites.json'
+    extension_zip.write(pathlib.Path(f'./{allowed_sites}'), arcname=allowed_sites)
+    
     extension_zip.write(pathlib.Path(f'./{browser_folder}/manifest.json'), arcname='manifest.json')
 
     for dst, src in files:

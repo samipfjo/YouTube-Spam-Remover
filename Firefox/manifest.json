@@ -50,7 +50,7 @@
   ],
   "web_accessible_resources": [
     "yt-spam-remover-worker.js",
-    "allowed-sites.json.gz",
+    "allowed-sites.json",
     "pako_inflate.min.js",
     "opennsfw.min.js",
     "pixelmatch.min.js"
