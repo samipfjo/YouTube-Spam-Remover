@@ -43,7 +43,7 @@
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/watch*", "*://youtube.com/watch*"],
-      "js": ["yt-spam-remover.js", "pako_inflate.min.js", "opennsfw.min.js", "pixelmatch.min.js"],
+      "js": ["yt-spam-remover.js", "opennsfw.min.js", "pixelmatch.min.js"],
       "css": ["yt-spam-remover.css"],
       "run_at": "document_end"
     }
@@ -51,7 +51,6 @@
   "web_accessible_resources": [
     "yt-spam-remover-worker.js",
     "allowed-sites.json",
-    "pako_inflate.min.js",
     "opennsfw.min.js",
     "pixelmatch.min.js"
   ]
