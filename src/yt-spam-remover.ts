@@ -163,7 +163,7 @@ declare var pako: any;
 		private _videoDataInit() {
 			if (this._channel_handle === null) {
 				const channel_handle_elem = document.querySelector('#channel-name #text.ytd-channel-name a') as HTMLElement;
-				this._channel_handle = (channel_handle_elem.attributes as any).href.nodeValue.slice(1);
+				this._channel_handle = channel_handle_elem?.innerText.replace('@', '').trim();
 				logger.verbose(`Channel handle is "${this._channel_handle}"`);
 			}
 
@@ -206,8 +206,9 @@ declare var pako: any;
 
 				if (this._checked_ids.has(cur_elem_id)) { continue; }
 
-				const user_handle = ((comment.querySelector('#channel-name #text') as HTMLElement)?.innerText ??
-				                     (comment.querySelector('#header-author #author-text span') as HTMLElement)?.innerText).trim();
+				let user_handle = (comment.querySelector('#channel-name #text') as HTMLElement)?.innerText;
+				user_handle = user_handle ? user_handle : (comment.querySelector('#header-author #author-text span') as HTMLElement)?.innerText;
+				user_handle = user_handle?.replace('@', '').trim();
 
 				// Certain comments can be defacto trusted
 				if (comment === this._pinned_comment ||									// Pinned comment
