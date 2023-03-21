@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Spam Remover",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Hides most YouTube spam comments",
   "icons": {
     "16": "icon16.png",
@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/watch*", "https://youtube.com/watch*"],
-      "js": ["yt-spam-remover.js", "pako_inflate.min.js", "opennsfw.min.js", "pixelmatch.min.js"],
+      "js": ["yt-spam-remover.js", "opennsfw.min.js", "pixelmatch.min.js"],
       "css": ["yt-spam-remover.css"],
       "run_at": "document_end"
     }
