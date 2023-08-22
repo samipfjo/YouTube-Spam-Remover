@@ -22,7 +22,7 @@
 **/
 
 declare var pixelmatch: Function;
-declare var DecompressionStream: ObjectConstructor;
+declare var DecompressionStream: { new (format: CompressionFormat): DecompressionStream; prototype: DecompressionStream; };
 
 {
 	const LogLevel = {
