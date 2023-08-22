@@ -162,8 +162,20 @@ declare var pako: any;
 		// ----
 		private _videoDataInit() {
 			if (this._channel_handle === null) {
-				const channel_handle_elem = document.querySelector('#channel-name #text.ytd-channel-name a') as HTMLElement;
-				this._channel_handle = channel_handle_elem?.innerText.replace('@', '').trim();
+				// Get the <a> wrapping the avatar image
+				const channel_image_anchor = document.querySelector('#below #above-the-fold #owner #avatar')?.parentElement as HTMLAnchorElement;
+				const channel_relative_url = channel_image_anchor.href.slice(channel_image_anchor.href.indexOf('.com/') + 5)
+
+				// Channel uses @handle URL
+				if (channel_relative_url.startsWith('@')) {
+					this._channel_handle = channel_relative_url.slice(1).trim();
+
+				// Channel uses pre-@handle URL
+				} else {
+					const channel_handle_elem = document.querySelector('#channel-name #text.ytd-channel-name a') as HTMLAnchorElement;
+					this._channel_handle = channel_handle_elem?.innerText.trim();
+				}
+
 				logger.verbose(`Channel handle is "${this._channel_handle}"`);
 			}
 
