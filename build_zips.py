@@ -13,6 +13,10 @@ files = [
     ('gui', 'src/gui/')
 ]
 
+excludes = [
+    '.old'
+]
+
 chrome_build_path = pathlib.Path(f'./Chrome/build/')
 shutil.copy(pathlib.Path(f'./Chrome/manifest.json'), chrome_build_path / 'manifest.json');
 
@@ -43,6 +47,9 @@ for browser_folder in ('Chrome', 'Firefox'):
 
             # Add all of the files from the specified directory to the files list
             for glob_src in (pathlib.Path(f) for f in glob.glob(f'{src}*.*')):
+                if any([True for exc in excludes if esc in str(glob_src)]):
+                    continue
+
                 files.append((pathlib.Path(dst) / glob_src.name, str(glob_src)))
 
             continue
