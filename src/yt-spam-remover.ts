@@ -219,7 +219,7 @@ declare var pako: any;
 				if (this._checked_ids.has(cur_elem_id)) { continue; }
 
 				let user_handle = (comment.querySelector('#channel-name #text') as HTMLElement)?.innerText;
-				user_handle = user_handle ? user_handle : (comment.querySelector('#header-author #author-text span') as HTMLElement)?.innerText;
+				user_handle = user_handle ? user_handle : (comment.querySelector('#header-author #author-text :nth-child(1)') as HTMLElement)?.innerText;
 				user_handle = user_handle?.replace('@', '').trim();
 
 				// Certain comments can be defacto trusted
@@ -245,7 +245,7 @@ declare var pako: any;
 						logger.verbose(`Adding event listener to comment #${cur_elem_id} by ${user_handle}`);
 
 						Utils.createImageEventListener(comment as HTMLElement, () => {
-							const user_handle = ((comment.querySelector('#header-author #author-text span') as HTMLElement)?.innerText).trim();
+							const user_handle = ((comment.querySelector('#header-author #author-text :nth-child(1)') as HTMLElement)?.innerText).trim();
 							const content = (comment.querySelector('#content-text') as HTMLElement).innerText;
 			
 							const fresh_author_image = comment.querySelector('img') as HTMLImageElement;
@@ -408,7 +408,9 @@ declare var pako: any;
 			let handler = () => {
 				clearTimeout(abort_timeout);
 
-				const user_handle = ((comment_elem.querySelector('#header-author #author-text span') as HTMLElement)?.innerText).trim();
+				// the element we're grabbing from used to be a span but got changed to the custom yt-formatted-string elem
+				// this will be able to handle both cases
+				const user_handle = ((comment_elem.querySelector('#header-author #author-text :nth-child(1)') as HTMLElement)?.innerText)?.trim();
 				logger.verbose(`Load event fired for comment #${cur_elem_id} by ${user_handle}`);
 
 				const fresh_author_image = comment_elem.querySelector('img') as HTMLImageElement;
