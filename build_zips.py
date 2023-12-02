@@ -47,7 +47,7 @@ for browser_folder in ('Chrome', 'Firefox'):
 
             # Add all of the files from the specified directory to the files list
             for glob_src in (pathlib.Path(f) for f in glob.glob(f'{src}*.*')):
-                if any([True for exc in excludes if esc in str(glob_src)]):
+                if any([True for exclusion in excludes if exclusion in str(glob_src)]):
                     continue
 
                 files.append((pathlib.Path(dst) / glob_src.name, str(glob_src)))
