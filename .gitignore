@@ -99,3 +99,9 @@ forbidden_matches.txt
 allowed_sites.txt
 YouTube-Spam-Remover_source.zip
 src/extern/opennsfw.min.js.old
+.idea/YouTube-Spam-Remover.iml
+.idea/vcs.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/inspectionProfiles/profiles_settings.xml
