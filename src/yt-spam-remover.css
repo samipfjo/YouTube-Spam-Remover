@@ -31,14 +31,40 @@ ytd-comment-renderer:not([data-ytsr-spam="1"]) {
 	min-height: 80px;
 }
 
+/* Blurring of avatar images */
 ytd-comment-renderer:not([data-ytsr-spam="0"]) #author-thumbnail {
 	filter: blur(4px);
+	}
+
+	ytd-comment-renderer:not([data-ytsr-spam="0"]) #author-thumbnail:hover {
+		filter: none;
+	}
+
+	ytd-comment-renderer:not([data-ytsr-spam="0"]) #author-thumbnail img {
+		filter: blur(10px);
+		}
+
+		ytd-comment-renderer:not([data-ytsr-spam="0"]) #author-thumbnail img:hover {
+			filter: none;
 }
 
-ytd-comment-renderer:not([data-ytsr-spam="0"]) #author-thumbnail img {
-	filter: blur(10px);
+/* Blurring of usernames */
+ytd-comment-renderer:not([data-ytsr-spam="0"]) #author-text {
+	filter: blur(4px);
+	}
+
+	ytd-comment-renderer[data-ytsr-spam="1"] #author-text:hover {
+		filter: none;
+	}
+
+	/* Explanation for blurred username and avatar */
+	ytd-comment-renderer[data-ytsr-spam="1"][data-ytsr-content-ok="1"] .published-time-text::before {
+		content: ' [NSFW avatar]';
+		padding-right: 6px;
 }
 
+
+/* Shimmering placeholder during checking */
 ytd-comment-renderer:not([data-ytsr-content-ok]):not([data-ytsr-spam]) * {
 	color: transparent !important;
 }
@@ -72,11 +98,25 @@ html[darker-dark-theme][dark] ytd-comment-renderer:not([data-ytsr-content-ok]):n
 	}
 }
 
-ytd-comment-renderer[data-ytsr-spam="1"]:not(.ytsr-display-override) *,
-ytd-comment-renderer[data-ytsr-spam="1"]:not(.ytsr-display-override) ~ #replies {
+/* Don't added the border and label when flagged for NSFW avatar */
+ytd-comment-thread-renderer > .ytsr-spam-toggler[data-ytsr-reason="  [potentially NSFW avatar]"] {
+	display: none;
+	}
+
+	ytd-comment-renderer[data-ytsr-spam="1"][data-ytsr-content-ok="1"],
+	ytd-comment-renderer[data-ytsr-spam="1"][data-ytsr-content-ok="1"].ytsr-display-override {
+		border: none !important;
+		padding: 0 !important;
+		padding-bottom: 0 !important;
+}
+
+/* If flagged other than NSFW avatar, hide comment children */
+ytd-comment-renderer[data-ytsr-spam="1"][data-ytsr-content-ok="0"]:not(.ytsr-display-override) *,
+ytd-comment-renderer[data-ytsr-spam="1"][data-ytsr-content-ok="0"]:not(.ytsr-display-override) ~ #replies {
 	display: none;
 }
 
+/* Manual override of comment hiding */
 ytd-comment-renderer[data-ytsr-spam="1"].ytsr-display-override {
 	border: 2px solid var(--accent-color);
 	padding: 15px;
