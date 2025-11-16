@@ -1,6 +1,8 @@
 # YouTube Spam Remover
  A browser extension that vastly reduces the amount of spam in YouTube comments using a variety of techniques
 
+## I have left software development. So long, and thanks for all the phish.
+
 [Install Firefox version here](https://addons.mozilla.org/en-US/firefox/addon/youtube-spam-remover/)
 
 [Install Chrome version here](https://chrome.google.com/webstore/detail/youtube-spam-remover/gmlbmlpbijkhcdhfaaimaehgjfjccffd)
