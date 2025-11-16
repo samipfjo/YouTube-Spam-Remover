@@ -3,6 +3,8 @@
 
 ## I have left software development. So long, and thanks for all the phish.
 
+<br>
+
 [Install Firefox version here](https://addons.mozilla.org/en-US/firefox/addon/youtube-spam-remover/)
 
 [Install Chrome version here](https://chrome.google.com/webstore/detail/youtube-spam-remover/gmlbmlpbijkhcdhfaaimaehgjfjccffd)
@@ -24,7 +26,7 @@ I manually assembled some commonly used phrases from spam comments, which act as
 Scammers pretending to be the video author are detected using a slightly modified version of [Mapbox's pixelmatch library](https://github.com/mapbox/pixelmatch).
 
 ### NSFW detection
-NSFW detection is handled by [my JavaScript port](https://github.com/lukepfjo/OpenNSFW.js) of Yahoo's OpenNSFW model. It's the most accurate (and least biased) NSFW classifier I could find, so I ported it for use in this extension. This can be disabled in the extension's option page if you desire.
+NSFW detection is handled by [my JavaScript port](https://github.com/samipfjo/OpenNSFW.js) of Yahoo's OpenNSFW model. It's the most accurate (and least biased) NSFW classifier I could find, so I ported it for use in this extension. This can be disabled in the extension's option page if you desire.
 
 ### Allowed sites
 Comments containing websites that are not in our allowed sites list are marked as spam out of an abundance of caution. Below are the steps used to generate this list.
